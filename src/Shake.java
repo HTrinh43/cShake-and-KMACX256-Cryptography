@@ -319,12 +319,17 @@ public class Shake {
      * @return
      */
     static byte[] KMACXOF256(byte[] K, byte[] X, int L, byte[] S){
+        byte[] result = new byte[L];
         byte[] newX = bytepad(encode_string(K), BigInteger.valueOf(136));
         byte[] rightEncodeL = right_encode(L);
-        
+        Shake shake = new Shake();
+        shake.sha3_init();
+//        byte[] prefix = bytepad(concat(encode_string("KMAC".getBytes())))
         newX = concat(newX, X);
         newX = concat(newX, rightEncodeL);
         return cShake256(newX, L, "KMAC".getBytes(), S);
+        //create a new byte array
+        //
 
     }
 
