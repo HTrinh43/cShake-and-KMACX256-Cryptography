@@ -13,13 +13,21 @@ public class Test {
 //        KMACTest2();
 //        KMACTest3();
 //        EncryptionDecryptionTest();
-//        PointEncryptionDecryptionTest();
+        PointEncryptionDecryptionTest();
 //        SignatureTest();
+//        sumEllipticCurvePoint();
     }
 
     private static void EllipticCurvePointTest() {
         EllipticCurvePoint test = new EllipticCurvePoint();
         System.out.println(test.getY());
+    }
+
+    private static void sumEllipticCurvePoint(){
+        EllipticCurvePoint point1 = new EllipticCurvePoint(new BigInteger("5"),new BigInteger("6"));
+        EllipticCurvePoint point2 = new EllipticCurvePoint(new BigInteger("5"),new BigInteger("6"));
+        point1.addPoints(point2);
+
     }
 
     // https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/cSHAKE_samples.pdf
@@ -161,9 +169,9 @@ public class Test {
         byte[] result = enc.PointDecryption(point, pw);
         System.out.println("Decryption Using SAME Correct Pass: " + Shake.bytesToHex(result));
 
-        String wrong_passphrase = "";
+        String wrong_passphrase = "sf";
         byte[] wrong_pw = wrong_passphrase.getBytes();
-        byte[] wrong_result = enc.PointDecryption(point,pw);
+        byte[] wrong_result = enc.PointDecryption(point,wrong_pw);
         System.out.println("Decryption Using WRONG Correct Pass: " + Shake.bytesToHex(wrong_result));
     }
 

@@ -6,7 +6,7 @@ public class EllipticCurvePoint implements Serializable {
     private static BigInteger myX;
     private static BigInteger myY;
 
-    private static BigInteger MersennePrime = new BigInteger("2").pow(521).subtract(new BigInteger("-1"));
+    private static BigInteger MersennePrime = new BigInteger("2").pow(521).subtract(new BigInteger("1"));
     public static BigInteger r = new BigInteger("2").pow(519).subtract(new BigInteger(
             "337554763258501705789107630418782636071" +
             "904961214051226618635150085779108655765"));
@@ -63,29 +63,31 @@ public class EllipticCurvePoint implements Serializable {
         BigInteger y2 = otherPoint.getY();
 
         BigInteger numeratorX = (x1.multiply(y2)).add(y1.multiply(x2));
-        BigInteger denominator = (d.multiply(x1).multiply(x2).multiply(y1).multiply(y2)).add(BigInteger.valueOf(1));
-        BigInteger resultX = (numeratorX.multiply(denominator.modInverse(MersennePrime)));
+        BigInteger intermediate = (d.multiply(x1).multiply(x2).multiply(y1).multiply(y2));
+        BigInteger denominatorX = BigInteger.ONE.add(intermediate);
+        BigInteger denominatorY = BigInteger.ONE.subtract(intermediate);
+        BigInteger resultX = (numeratorX.multiply(denominatorX.modInverse(MersennePrime)).mod(MersennePrime));
 
         BigInteger numeratorY = (y1.multiply(y2)).subtract(x1.multiply(x2));
-        BigInteger resultY = (numeratorY.multiply(denominator.modInverse(MersennePrime)));
-
+        BigInteger resultY = (numeratorY.multiply(denominatorY.modInverse(MersennePrime)).mod(MersennePrime));
         return new EllipticCurvePoint(resultX, resultY);
     }
 
     // Scalar multiplication formula from the pseudocode in the project specification sheet.
     public static EllipticCurvePoint scalarMultiplication(EllipticCurvePoint P, BigInteger s) {
+
         String temp = s.toString(2);
         int k = temp.length();
-        EllipticCurvePoint result = new EllipticCurvePoint();
-        EllipticCurvePoint V = P;
+        EllipticCurvePoint V = new EllipticCurvePoint(P.getX(),P.getY());
+
         for (int i = k - 1; i >= 0; i--) {
-            V = EllipticCurvePoint.addPoints(V);
+            V = V.addPoints(V);
             char s_i = temp.charAt(i);
             if (s_i == '1') {
-                result = EllipticCurvePoint.addPoints(V);
+                V = EllipticCurvePoint.addPoints(P);
             }
         }
-        return result;
+        return V;
     }
 
     public BigInteger getX() {

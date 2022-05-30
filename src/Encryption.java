@@ -55,14 +55,16 @@ public class Encryption {
         byte[] kbytes = new byte[512];
         sr.nextBytes(kbytes);
         BigInteger k = new BigInteger(kbytes);
+
         k = k.multiply(BigInteger.valueOf(4));
 
-        // W  k*V; Z <- k*G
+        // W <- k*V; Z <- k*G
         EllipticCurvePoint W = EllipticCurvePoint.scalarMultiplication(V, k);
+        System.out.println(W.getX().toString());
         EllipticCurvePoint Z = EllipticCurvePoint.scalarMultiplication(EllipticCurvePoint.G, k);
 
         // (ke || ka) <- KMACXOF256(Wx, “”, 1024, “P”)
-        byte[] keka = Shake.KMACXOF256(W.getX().toByteArray(), ("").getBytes(), 1024, "P".getBytes());
+        byte[] keka = Shake.KMACXOF256(W.getX().toByteArray(), EMPTYSTRING, 1024, "P".getBytes());
         byte[] ke = Arrays.copyOfRange(keka, 0, keka.length/2);
         byte[] ka = Arrays.copyOfRange(keka, keka.length/2, keka.length);
 
@@ -115,7 +117,6 @@ public class Encryption {
         // s <- KMACXOF256(pw, “”, 512, “K”); s <- 4s
         byte[] sArray = Shake.KMACXOF256(pw, EMPTYSTRING,512,"K".getBytes());
         BigInteger s = new BigInteger(sArray).multiply(BigInteger.valueOf(4));
-
         // W <- s*Z
         EllipticCurvePoint W = EllipticCurvePoint.scalarMultiplication(Z, s);
 
