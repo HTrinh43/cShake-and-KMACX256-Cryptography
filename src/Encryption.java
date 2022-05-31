@@ -52,7 +52,7 @@ public class Encryption {
 
     public PointCryptogram PointEncryption(byte[] m, EllipticCurvePoint V) {
         // k <- Random(512); k <- 4k
-        byte[] kbytes = new byte[512];
+        byte[] kbytes = new byte[64];
         sr.nextBytes(kbytes);
         BigInteger k = new BigInteger(kbytes);
 

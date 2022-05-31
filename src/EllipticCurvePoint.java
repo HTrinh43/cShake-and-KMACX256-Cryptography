@@ -3,8 +3,8 @@ import java.math.BigInteger;
 
 // This class represents a single point on Edward's Curve.
 public class EllipticCurvePoint implements Serializable {
-    private static BigInteger myX;
-    private static BigInteger myY;
+    private BigInteger myX;
+    private BigInteger myY;
 
     private static BigInteger MersennePrime = new BigInteger("2").pow(521).subtract(new BigInteger("1"));
     public static BigInteger r = new BigInteger("2").pow(519).subtract(new BigInteger(
@@ -41,7 +41,7 @@ public class EllipticCurvePoint implements Serializable {
         }
     }
 
-    public static boolean compare(EllipticCurvePoint point) {
+    public boolean compare(EllipticCurvePoint point) {
         if (point.getX().equals(myX) && point.getY().equals(myY)) {
             return true;
         } else {
@@ -56,7 +56,7 @@ public class EllipticCurvePoint implements Serializable {
     }
 
     // Addition of current and other point based on the equation from the project specification sheet.
-    public static EllipticCurvePoint addPoints(EllipticCurvePoint otherPoint) {
+    public EllipticCurvePoint addPoints(EllipticCurvePoint otherPoint) {
         BigInteger x1 = myX;
         BigInteger y1 = myY;
         BigInteger x2 = otherPoint.getX();
@@ -84,7 +84,7 @@ public class EllipticCurvePoint implements Serializable {
             V = V.addPoints(V);
             char s_i = temp.charAt(i);
             if (s_i == '1') {
-                V = EllipticCurvePoint.addPoints(P);
+                V = V.addPoints(P);
             }
         }
         return V;
