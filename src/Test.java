@@ -1,21 +1,23 @@
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.Random;
 
 /**
  * Testing for CShake and KMAC.
  */
 public class Test {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
 //        ShakeTest();
 //        ShakeTest2();
 //        KMACTest();
 //        KMACTest2();
 //        KMACTest3();
 //        EncryptionDecryptionTest();
-        PointEncryptionDecryptionTest();
+//        PointEncryptionDecryptionTest();
 //        SignatureTest();
 //        sumEllipticCurvePoint();
+        GpointTest();
     }
 
     private static void EllipticCurvePointTest() {
@@ -23,10 +25,45 @@ public class Test {
         System.out.println(test.getY());
     }
 
-    private static void sumEllipticCurvePoint(){
-        EllipticCurvePoint point1 = new EllipticCurvePoint(new BigInteger("5"),new BigInteger("6"));
-        EllipticCurvePoint point2 = new EllipticCurvePoint(new BigInteger("5"),new BigInteger("6"));
-        point1.addPoints(point2);
+    public static void GpointTest(){
+        ECP521 g = new ECP521(BigInteger.valueOf(4),false);
+        ECP521 o = new ECP521();
+        Random rand = new Random();
+        BigInteger k = BigInteger.valueOf(rand.nextInt(999999999));
+        BigInteger t = BigInteger.valueOf(rand.nextInt(999999999));
+//        System.out.println("X: " + g.getX() + "\n Y: " + g.getY());
+        ECP521 g1 = g.scalarMultiplication(BigInteger.valueOf(1));
+//        System.out.println("g1 ");
+//        System.out.println("X: " + g1.getX() + "\n Y: " + g1.getY());
+        ECP521 g2 = g.add(g);
+        System.out.println("G=1*G: " + g.equals(g1));
+        System.out.println("2*G = G + G: " + g.scalarMultiplication(BigInteger.TWO).equals(g2));
+        System.out.println("0*G = O: " + g.scalarMultiplication(BigInteger.ZERO).equals(o));
+        System.out.println("4*G = 2*(2*G): " + g.scalarMultiplication(BigInteger.valueOf(4))
+                .equals(g.scalarMultiplication(BigInteger.TWO).scalarMultiplication(BigInteger.TWO)));
+        System.out.println("4*G != O: " + !g.scalarMultiplication(BigInteger.valueOf(4)).equals(o));
+        System.out.println("r*G = O: " + g.scalarMultiplication(g.getR()).equals(o));
+
+        System.out.println("k*G = (k mod r)*G: " + g.scalarMultiplication(k)
+                .equals(g.scalarMultiplication(k.mod(g.getR()))));
+        System.out.println("(k + 1)*G = (k*G) + G: " + g.scalarMultiplication(k.add(BigInteger.ONE))
+                .equals(g.scalarMultiplication(k).add(g)));
+        System.out.println("(k + t)*G = (k*G) + (t*G): " + g.scalarMultiplication(k.add(t))
+                .equals(g.scalarMultiplication(k).add(g.scalarMultiplication(t))));
+        System.out.println("k*(t*G) = t*(k*G): " + g.scalarMultiplication(t).scalarMultiplication(k)
+                .equals(g.scalarMultiplication(k).scalarMultiplication(t)));
+    }
+
+    private static void sumEllipticCurvePoint() throws Exception {
+        ECP521 g = new ECP521(BigInteger.valueOf(4),false);
+        ECP521 g2 = new ECP521(BigInteger.valueOf(4),false);
+        ECP521 g3 = g.add(g2);
+        ECP521 g4 = g.scalarMultiplication(BigInteger.TWO);
+        System.out.println("X: " + g3.getX().toString() + "\nY: " + g3.getY().toString());
+        System.out.println("X: " + g4.getX().toString() + "\nY: " + g4.getY().toString());
+
+
+//        System.out.println("X: " + point3.getX().toString() + "\nY: " + point3.getY().toString());
 
     }
 
@@ -162,17 +199,25 @@ public class Test {
         String passPhrase = "secret_passphrase";
         byte[] pw = passPhrase.getBytes();
         System.out.println("The pass: " + Shake.bytesToHex(pw));
-        EllipticCurvePoint V = new EllipticCurvePoint(BigInteger.valueOf(12312), BigInteger.valueOf(142145252));
+        ECP521 V = new ECP521(BigInteger.valueOf(8), false);
         Encryption enc = new Encryption();
 
         PointCryptogram point = enc.PointEncryption(pw, V);
-        byte[] result = enc.PointDecryption(point, pw);
-        System.out.println("Decryption Using SAME Correct Pass: " + Shake.bytesToHex(result));
 
+        System.out.println("Point in test: \nX: " + point.getZ().getX().toString()+"\nY: "+point.getZ().getY().toString());
+
+        byte[] result = enc.PointDecryption(point, pw);
+        if (result != null)
+            System.out.println("Decryption Using SAME Correct Pass: " + Shake.bytesToHex(result));
+        else
+            System.out.println("!!!!! The Decryption does not work correctly!");
         String wrong_passphrase = "sf";
         byte[] wrong_pw = wrong_passphrase.getBytes();
         byte[] wrong_result = enc.PointDecryption(point,wrong_pw);
-        System.out.println("Decryption Using WRONG Correct Pass: " + Shake.bytesToHex(wrong_result));
+        if (wrong_result == null)
+            System.out.println("Decryption Using WRONG Correct Pass: PASS! ");
+        else
+            System.out.println("Decryption Using WRONG Correct Pass: Failed! ");
     }
 
     public static void SignatureTest() {
