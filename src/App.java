@@ -15,23 +15,52 @@ public class App {
     private static JFileChooser chooser = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        System.out.println("Please choose an option:");
-        System.out.println("\n------------------------------------------------------------------------\n"+
-                        "0. Open a file \n"
-                        + "1. Give a string\n"
-                        + "2. Encrypt a given data file symmetrically under a given passphrase\n"
-                        + "3. Decrypt a given symmetric cryptogram under a given passphrase\n"
-                        + "------------------------------------------------------------------------\n"
-                        + "4. Generate an elliptic key pair from a given passphrase\n"
-                        + "5. Encrypt a data file under a given elliptic public key file\n"
-                        + "6. Decrypt a given elliptic-encrypted file from a given password\n"
-                        + "7. Sign a file from a given password and write the signature to the file\n"
-                        + "8. Verify a given data file and its signature file under a public key file\n"
-                        + "------------------------------------------------------------------------\n"
-                        + "9. Exit\n"
-                        + "------------------------------------------------------------------------\n\n"
-                        + "Your choice: ");
+        System.out.println("------------------------------------");
+        System.out.println("Welcome to our cryptography program!");
+        System.out.println("------------------------------------\n");
+        System.out.println("PLEASE CHOOSE THE RIGHT FILE TYPES OR THE PROGRAM MAY MALFUNCTION!\n");
+        System.out.println("Please type in a number to choose an option:");
+        PrintMainMenu();
+        // The loop for the menu.
         int choice = 0;
+        while (choice != 9) {
+            if (sc.hasNextInt()) {
+                choice = sc.nextInt();
+                sc.nextLine(); // Consume the entire line.
+                // Choice for either part 1 or part 2 functionality or exit.
+                if (choice == 1) {
+                    PartOneMenu(sc);
+                    PrintMainMenu();
+                } else if (choice == 2) {
+                    PartTwoMenu(sc);
+                    PrintMainMenu();
+                } else if (choice == 3) {
+                    System.out.println("Exiting...");
+                    System.exit(0);
+                } else {
+                    System.out.println("Please type in a VALID number:");
+                    PrintMainMenu();
+                }
+            } else {
+                System.out.println("Please type in a NUMBER:");
+                PrintMainMenu();
+                sc.nextLine(); // Consume the entire line.
+            }
+        }
+    }
+
+    private static void PrintMainMenu() {
+        System.out.println(
+                "=================== MAIN MENU ===================\n" +
+                "1 - Bring up Menu One for Part One Functionality.\n" +
+                "2 - Bring up Menu Two for Part Two Functionality.\n" +
+                "3 - Exit the program.\n" +
+                "=================================================");
+    }
+
+    // Handles the entire functionality for part 1 menu.
+    private static void PartOneMenu(Scanner sc) {
+        // Initialization for required variables.
         byte[] S; //diversification string
         byte[] K; //key
         byte[] dataFile = null; //message
@@ -39,162 +68,211 @@ public class App {
         String passphrase = "";
         Encryption enc = new Encryption();
         SymmetricCryptogram sym = null;
-        EllipticCurvePoint pointsym = null;
         S = "D".getBytes();
         K = "".getBytes();
         String str = "";
-        while (choice != 9){
-            if (sc.hasNextInt()){
+        int choice = 0;
+        PrintPartOneMenu();
+        while (choice != 1 && choice != 2 && choice != 3 && choice != 4 && choice != 5) {
+            if (sc.hasNextInt()) {
                 choice = sc.nextInt();
-                if (choice == 0){
+                sc.nextLine();
+                if (choice == 1) {
+                    System.out.println("Please choose the data file:");
                     dataFile = getFile();
-                    result = Shake.KMACXOF256(K, dataFile, 512, S);
-                    System.out.println("Plain cryptographic hash result: \n"
-                            + Shake.bytesToHex(result)
-                            + "\n");
+                    if (dataFile == null) {
+                        System.out.println("Please choose a file next time.");
+                    } else {
+                        result = Shake.KMACXOF256(K, dataFile, 512, S);
+                        System.out.println("Plain cryptographic hash result: \n"
+                                + Shake.bytesToHex(result));
                     }
-                else if (choice == 1){
+                } else if (choice == 2) {
                     System.out.println("Your string: ");
                     str = sc.next();
+                    sc.nextLine();
                     dataFile = str.getBytes();
                     result = Shake.KMACXOF256(K, dataFile, 512, S);
                     System.out.println("Plain cryptographic hash result: \n"
                             + Shake.bytesToHex(result)
                             + "\n");
-                }
-                else if (choice == 2){
-                    System.out.println("Please choose a file");
+                } else if (choice == 3) {
+                    System.out.println("Please choose the data file:");
                     dataFile = getFile();
-                    System.out.println("Please enter you passphrase: ");
-                    passphrase = sc.next();
-                    sym = enc.Encryption(dataFile,passphrase);
-                    System.out.println("Enter the name of the output file with .txt at the end: ");
-                    saveFile(sym);
-                }
-                else if (choice == 3){
-                    System.out.println("Open the encrypted file: ");
-                    Object obj = openFile();
-                    if (obj != null){
-                        SymmetricCryptogram sym2 = (SymmetricCryptogram) obj;
-                        System.out.println("Please enter you passphrase: ");
+                    if (dataFile == null) {
+                        System.out.println("Please choose a file next time.");
+                    } else {
+                        System.out.println("Please enter a passphrase:");
                         passphrase = sc.next();
-                        byte[] decryptObj = enc.Decryption(sym2,passphrase);
-                        if (decryptObj != null){
-                            System.out.println("Your byte code:");
-                            System.out.println(Shake.bytesToHex(decryptObj));
-                        }
-                        else{
-                            System.out.println("Maybe you choose a wrong file or a wrong pass phrase.");
-                        }
+                        sc.nextLine();
+                        sym = enc.Encryption(dataFile, passphrase);
+                        System.out.println("Enter the name of the output file with .txt at the end:");
+                        saveFile(sym);
                     }
+                } else if (choice == 4) {
+                    System.out.println("Open the encrypted file:");
+                    Object obj = openFile();
+                    if (obj != null) {
+                        SymmetricCryptogram sym2 = (SymmetricCryptogram) obj;
+                        System.out.println("Please enter a passphrase:");
+                        passphrase = sc.next();
+                        sc.nextLine();
+                        byte[] decryptObj = enc.Decryption(sym2, passphrase);
+                        if (decryptObj != null) {
+                            System.out.println("Decrypted File Contents in Byte Code Format:");
+                            System.out.println(Shake.bytesToHex(decryptObj));
+                        } else {
+                            System.out.println("You either chose the wrong file or entered the wrong pass phrase.");
+                        }
+                    } else {
+                        System.out.println("Please choose a file next time.");
+                    }
+                } else if (choice == 5) {
+                    break;
+                } else {
+                    System.out.println("Please type in a VALID number:");
                 }
-                else if (choice == 4) {
-                    System.out.println("Please enter you passphrase: ");
+                choice = 0;
+                PrintPartOneMenu();
+            } else {
+                System.out.println("Please type in a NUMBER:");
+                PrintPartOneMenu();
+                sc.nextLine(); // Consume the entire line.
+            }
+        }
+    }
+
+    private static void PrintPartOneMenu() {
+        System.out.println(
+                  "=============================== MENU 1 =============================\n"
+                + "1. Compute cryptographic hash of a given file.\n"
+                + "2. Compute cryptographic hash of a given string.\n"
+                + "3. Encrypt a given data file symmetrically under a given passphrase.\n"
+                + "4. Decrypt a given symmetric cryptogram under a given passphrase.\n"
+                + "5. Go back to the main menu.\n"
+                + "====================================================================");
+    }
+
+    // Handles the entire functionality for part 2 menu.
+    private static void PartTwoMenu(Scanner sc) {
+        // Initialization for required variables.
+        byte[] dataFile = null; //message
+        String passphrase = "";
+        Encryption enc = new Encryption();
+        EllipticCurvePoint pointsym = null;
+        int choice = 0;
+        PrintPartTwoMenu();
+        while (choice != 1 && choice != 2 && choice != 3 && choice != 4 && choice != 5 && choice != 6) {
+            if (sc.hasNextInt()) {
+                choice = sc.nextInt();
+                sc.nextLine();
+                if (choice == 1) {
+                    System.out.println("Please enter a passphrase:");
                     passphrase = sc.next();
+                    sc.nextLine();
                     pointsym = enc.GenerateKeyPair(passphrase.getBytes());
                     System.out.println("Enter the name of the output file with .txt at the end: ");
                     saveFile(pointsym);
-                }
-                else if (choice == 5) {
-                    System.out.println("Please choose the data file");
+                } else if (choice == 2) {
+                    System.out.println("Please choose the data file:");
                     dataFile = getFile();
-                    System.out.println("Please choose the elliptic public key file: ");
-                    Object obj = openFile();
-                    if (obj != null) {
-                        EllipticCurvePoint point = (EllipticCurvePoint) obj;
-                        PointCryptogram cryptogram = enc.PointEncryption(dataFile, point);
-                        System.out.println("Enter the name of the output file with .txt at the end: ");
-                        saveFile(cryptogram);
+                    if (dataFile == null) {
+                        System.out.println("Please choose a file next time.");
+                    } else {
+                        System.out.println("Please choose the elliptic public key file: ");
+                        Object obj = openFile();
+                        if (obj != null) {
+                            EllipticCurvePoint point = (EllipticCurvePoint) obj;
+                            PointCryptogram cryptogram = enc.PointEncryption(dataFile, point);
+                            System.out.println("Enter the name of the output file with .txt at the end: ");
+                            saveFile(cryptogram);
+                        } else {
+                            System.out.println("Please choose a file next time.");
+                        }
                     }
-                }
-                else if (choice == 6) {
+                } else if (choice == 3) {
                     System.out.println("Open the encrypted file: ");
                     Object obj = openFile();
                     if (obj != null){
                         PointCryptogram sym2 = (PointCryptogram) obj;
-                        System.out.println("Please enter you passphrase: ");
+                        System.out.println("Please enter a passphrase:");
                         passphrase = sc.next();
+                        sc.nextLine();
                         byte[] decryptObj = enc.PointDecryption(sym2,passphrase.getBytes());
                         if (decryptObj != null){
-                            System.out.println("Your byte code:");
+                            System.out.println("Decrypted File Contents in Byte Code Format:");
                             System.out.println(Shake.bytesToHex(decryptObj));
                         }
-                        else{
-                            System.out.println("Maybe you choose a wrong file or a wrong pass phrase.");
+                        else {
+                            System.out.println("You either chose the wrong file or entered the wrong pass phrase.");
                         }
                     }
-                }
-                else if (choice == 7) {
-                    System.out.println("Please choose the data file");
+                } else if (choice == 4) {
+                    System.out.println("Please choose the data file:");
                     dataFile = getFile();
-                    System.out.println("Please enter you passphrase: ");
-                    passphrase = sc.next();
-                    BigInteger[] signature = enc.GenerateSignature(dataFile, passphrase.getBytes());
-                    System.out.println("Enter the name of the output file with .txt at the end: ");
-                    saveFile(signature);
-                }
-                else if (choice == 8) {
-                    System.out.println("Please choose the data file");
+                    if (dataFile == null) {
+                        System.out.println("Please choose a file next time.");
+                    } else {
+                        System.out.println("Please enter a passphrase:");
+                        passphrase = sc.next();
+                        sc.nextLine();
+                        BigInteger[] signature = enc.GenerateSignature(dataFile, passphrase.getBytes());
+                        System.out.println("Enter the desired name of the signature output file with .txt at the end: ");
+                        saveFile(signature);
+                    }
+                } else if (choice == 5) {
+                    System.out.println("Please choose the data file:");
                     dataFile = getFile();
-                    System.out.println("Open the signature file: ");
-                    Object obj = openFile();
-                    if (obj != null) {
-                        BigInteger[] signature = (BigInteger[]) obj;
-                        System.out.println("Please choose the elliptic public key file: ");
-                        Object obj2 = openFile();
-                        if (obj2 != null) {
-                            EllipticCurvePoint point = (EllipticCurvePoint) obj2;
-                            byte[] signatureResult = enc.VerifySignature(signature, dataFile, point);
-                            if (signatureResult != null) {
-                                System.out.println("The signature is valid!");
+                    if (dataFile == null) {
+                        System.out.println("Please choose a file next time.");
+                    } else {
+                        System.out.println("Open the signature file: ");
+                        Object obj = openFile();
+                        if (obj != null) {
+                            BigInteger[] signature = (BigInteger[]) obj;
+                            System.out.println("Please choose the elliptic public key file: ");
+                            Object obj2 = openFile();
+                            if (obj2 != null) {
+                                EllipticCurvePoint point = (EllipticCurvePoint) obj2;
+                                byte[] signatureResult = enc.VerifySignature(signature, dataFile, point);
+                                if (signatureResult != null) {
+                                    System.out.println("The signature is valid!");
+                                } else {
+                                    System.out.println("The signature is NOT valid!");
+                                }
                             } else {
-                                System.out.println("The signature is NOT valid!");
+                                System.out.println("Please choose a file next time.");
                             }
+                        } else {
+                            System.out.println("Please choose a file next time.");
                         }
                     }
+
+                } else if (choice == 6) {
+                    break;
+                } else {
+                    System.out.println("Please type in a VALID number:");
                 }
-                else if (choice == 9) {
-                    System.out.println("Exiting...");
-                    System.exit(0);
-                }
-//              break;
-                System.out.println("Please choose an option:");
-                System.out.println("\n------------------------------------------------------------------------\n"+
-                        "0. Open a file \n"
-                        + "1. Give a string\n"
-                        + "2. Encrypt a given data file symmetrically under a given passphrase\n"
-                        + "3. Decrypt a given symmetric cryptogram under a given passphrase\n"
-                        + "------------------------------------------------------------------------\n"
-                        + "4. Generate an elliptic key pair from a given passphrase\n"
-                        + "5. Encrypt a data file under a given elliptic public key file\n"
-                        + "6. Decrypt a given elliptic-encrypted file from a given password\n"
-                        + "7. Sign a file from a given password and write the signature to the file\n"
-                        + "8. Verify a given data file and its signature file under a public key file\n"
-                        + "------------------------------------------------------------------------\n"
-                        + "9. Exit\n"
-                        + "------------------------------------------------------------------------\n\n"
-                        + "Your choice: ");
-            }
-            else {
-                System.out.println("\nMust choose a valid option.\n");
-                System.out.println("\n------------------------------------------------------------------------\n"+
-                        "0. Open a file \n"
-                        + "1. Give a string\n"
-                        + "2. Encrypt a given data file symmetrically under a given passphrase\n"
-                        + "3. Decrypt a given symmetric cryptogram under a given passphrase\n"
-                        + "------------------------------------------------------------------------\n"
-                        + "4. Generate an elliptic key pair from a given passphrase\n"
-                        + "5. Encrypt a data file under a given elliptic public key file\n"
-                        + "6. Decrypt a given elliptic-encrypted file from a given password\n"
-                        + "7. Sign a file from a given password and write the signature to the file\n"
-                        + "8. Verify a given data file and its signature file under a public key file\n"
-                        + "------------------------------------------------------------------------\n"
-                        + "9. Exit\n"
-                        + "------------------------------------------------------------------------\n\n"
-                        + "Your choice: ");
-                sc.next();
+                choice = 0;
+                PrintPartTwoMenu();
+            } else {
+                System.out.println("Please type in a NUMBER:");
+                PrintPartTwoMenu();
+                sc.nextLine(); // Consume the entire line.
             }
         }
+    }
+
+    private static void PrintPartTwoMenu() {
+        System.out.println(
+                  "================================== MENU 2 ================================\n"
+                + "1. Generate an elliptic key pair from a given passphrase\n"
+                + "2. Encrypt a data file under a given elliptic public key file\n"
+                + "3. Decrypt a given elliptic-encrypted file from a given password\n"
+                + "4. Sign a file from a given password and write the signature to the file\n"
+                + "5. Verify a given data file and its signature file under a public key file\n"
+                + "6. Go back to the main menu.\n"
+                + "==========================================================================");
     }
 
     /**
@@ -203,7 +281,7 @@ public class App {
      */
     private static byte[] getFile(){
         JDialog dialog = new JDialog();
-        chooser.setCurrentDirectory(FileSystemView.getFileSystemView().getHomeDirectory());
+        chooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
         int retValue = chooser.showOpenDialog(dialog);
         File selectedFile = null;
         byte[] result = null;
@@ -225,7 +303,7 @@ public class App {
      */
     private static void saveFile(final Object obj){
         JDialog dialog = new JDialog();
-        chooser.setCurrentDirectory(FileSystemView.getFileSystemView().getHomeDirectory());
+        chooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
         chooser.setDialogTitle("Save");
         int retValue = chooser.showSaveDialog(dialog);
         if (retValue == JFileChooser.APPROVE_OPTION) {
@@ -246,7 +324,7 @@ public class App {
      */
     private static Object openFile(){
         JDialog dialog = new JDialog();
-        chooser.setCurrentDirectory(FileSystemView.getFileSystemView().getHomeDirectory());
+        chooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
         int retValue = chooser.showOpenDialog(dialog);
         File selectedFile = null;
         if (retValue == JFileChooser.APPROVE_OPTION) {

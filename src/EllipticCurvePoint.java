@@ -75,11 +75,9 @@ public class EllipticCurvePoint implements Serializable {
 
     // Scalar multiplication formula from the pseudocode in the project specification sheet.
     public static EllipticCurvePoint scalarMultiplication(EllipticCurvePoint P, BigInteger s) {
-
         String temp = s.toString(2);
         int k = temp.length();
         EllipticCurvePoint V = new EllipticCurvePoint(P.getX(),P.getY());
-
         for (int i = k - 1; i >= 0; i--) {
             V = V.addPoints(V);
             char s_i = temp.charAt(i);

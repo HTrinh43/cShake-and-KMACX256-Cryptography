@@ -17,7 +17,7 @@ public class Test {
 //        PointEncryptionDecryptionTest();
 //        SignatureTest();
 //        sumEllipticCurvePoint();
-        GpointTest();
+//        GpointTest();
     }
 
     private static void EllipticCurvePointTest() {
@@ -199,7 +199,7 @@ public class Test {
         String passPhrase = "secret_passphrase";
         byte[] pw = passPhrase.getBytes();
         System.out.println("The pass: " + Shake.bytesToHex(pw));
-        ECP521 V = new ECP521(BigInteger.valueOf(8), false);
+        EllipticCurvePoint V = new EllipticCurvePoint(BigInteger.valueOf(8), false);
         Encryption enc = new Encryption();
 
         PointCryptogram point = enc.PointEncryption(pw, V);

@@ -60,7 +60,6 @@ public class Encryption {
 
         // W <- k*V; Z <- k*G
         EllipticCurvePoint W = EllipticCurvePoint.scalarMultiplication(V, k);
-        System.out.println(W.getX().toString());
         EllipticCurvePoint Z = EllipticCurvePoint.scalarMultiplication(EllipticCurvePoint.G, k);
 
         // (ke || ka) <- KMACXOF256(Wx, “”, 1024, “P”)
