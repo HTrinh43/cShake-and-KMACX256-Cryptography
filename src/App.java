@@ -1,14 +1,16 @@
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
-import java.awt.*;
 import java.io.*;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Scanner;
 
 /**
+ * TCSS 487 - Final Cryptography Project - Alex Trinh, Eugene Oh
+ *
  * The main driver class behind the cryptography program.
  */
 public class App {
@@ -146,6 +148,8 @@ public class App {
                         if (decryptObj != null) {
                             System.out.println("Decrypted File Contents in Byte Code Format:");
                             System.out.println(Shake.bytesToHex(decryptObj));
+                            System.out.println("Decrypted File Contents in String Format:");
+                            System.out.println(new String(decryptObj, StandardCharsets.UTF_8));
                         } else {
                             System.out.println("You either chose the wrong file or entered the wrong pass phrase.");
                         }
@@ -234,6 +238,8 @@ public class App {
                         if (decryptObj != null){
                             System.out.println("Decrypted File Contents in Byte Code Format:");
                             System.out.println(Shake.bytesToHex(decryptObj));
+                            System.out.println("Decrypted File Contents in String Format:");
+                            System.out.println(new String(decryptObj, StandardCharsets.UTF_8));
                         }
                         else {
                             System.out.println("You either chose the wrong file or entered the wrong pass phrase.");

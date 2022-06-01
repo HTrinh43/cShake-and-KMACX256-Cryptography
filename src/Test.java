@@ -3,7 +3,9 @@ import java.util.Arrays;
 import java.util.Random;
 
 /**
- * Testing for CShake and KMAC.
+ * TCSS 487 - Final Cryptography Project - Alex Trinh, Eugene Oh
+ *
+ * The class used for testing of all implemented functions in this project.
  */
 public class Test {
 
@@ -199,8 +201,9 @@ public class Test {
         String passPhrase = "secret_passphrase";
         byte[] pw = passPhrase.getBytes();
         System.out.println("The pass: " + Shake.bytesToHex(pw));
-        EllipticCurvePoint V = new EllipticCurvePoint(BigInteger.valueOf(8), false);
+
         Encryption enc = new Encryption();
+        EllipticCurvePoint V = enc.GenerateKeyPair(pw);
 
         PointCryptogram point = enc.PointEncryption(pw, V);
 
@@ -224,10 +227,11 @@ public class Test {
         System.out.println("Signature Test ");
         byte[] pw = "pw".getBytes();
         byte[] m = "The message".getBytes();
-        EllipticCurvePoint V = new EllipticCurvePoint(BigInteger.valueOf(12312), BigInteger.valueOf(142145252));
+
         Encryption enc = new Encryption();
-        BigInteger[] result = enc.GenerateSignature(m, pw);
-        byte[] verifyResult = enc.VerifySignature(result, m, V);
+        EllipticCurvePoint V = enc.GenerateKeyPair(pw);
+        BigInteger[] signature = enc.GenerateSignature(m, pw);
+        byte[] verifyResult = enc.VerifySignature(signature, m, V);
         if (verifyResult != null) {
             System.out.println("yep");
         } else {
