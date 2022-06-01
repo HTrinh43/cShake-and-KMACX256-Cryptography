@@ -1,5 +1,6 @@
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
+import java.awt.*;
 import java.io.*;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
@@ -16,16 +17,21 @@ import java.util.Scanner;
 public class App {
     private static JFileChooser chooser = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
 
+    // Used for enc/dec using user inputs.
+    private static EllipticCurvePoint currentKey = null;
+    private static byte[] currentData = null;
+    private static PointCryptogram currentEncryptedData;
+
     /**
      * Runs the entirety of the program.
      * @param args Typical args.
      */
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        System.out.println("------------------------------------");
+        System.out.println("\n------------------------------------");
         System.out.println("Welcome to our cryptography program!");
         System.out.println("------------------------------------\n");
-        System.out.println("PLEASE CHOOSE THE RIGHT FILE TYPES OR THE PROGRAM MAY MALFUNCTION!\n");
+        System.out.println("PLEASE CHOOSE THE RIGHT FILE TYPES WHEN PROMPTED OR THE PROGRAM MAY MALFUNCTION!\n");
         System.out.println("Please type in a number to choose an option:");
         PrintMainMenu();
         // The loop for the menu.
@@ -176,14 +182,14 @@ public class App {
      */
     private static void PrintPartOneMenu() {
         System.out.println(
-                  "================================= MENU 1 ==================================\n"
+                  "=================================== MENU 1 ===================================\n"
                 + "1. Compute cryptographic hash of a given file.\n"
                 + "2. Compute cryptographic hash of a given string.\n"
-                + "3. Compute the authentication tag (MAC) from a given data file and password.\n"
+                + "3. Compute the authentication tag (MAC) from a given data file and passphrase.\n"
                 + "4. Encrypt a given data file symmetrically under a given passphrase.\n"
                 + "5. Decrypt a given symmetric cryptogram under a given passphrase.\n"
                 + "6. Go back to the main menu.\n"
-                + "============================================================================");
+                + "==============================================================================");
     }
 
     /**
@@ -198,7 +204,7 @@ public class App {
         EllipticCurvePoint pointsym = null;
         int choice = 0;
         PrintPartTwoMenu();
-        while (choice != 1 && choice != 2 && choice != 3 && choice != 4 && choice != 5 && choice != 6) {
+        while (choice != 1 && choice != 2 && choice != 3 && choice != 4 && choice != 5 && choice != 6 && choice != 7 && choice != 8) {
             if (sc.hasNextInt()) {
                 choice = sc.nextInt();
                 sc.nextLine();
@@ -245,7 +251,37 @@ public class App {
                             System.out.println("You either chose the wrong file or entered the wrong pass phrase.");
                         }
                     }
-                } else if (choice == 4) { // Signing a file.
+                } else if (choice == 4) { // Encryption from user input.
+                    // Getting an elliptic key.
+                    System.out.println("Please enter a passphrase used for generating an elliptic key:");
+                    passphrase = sc.next();
+                    sc.nextLine();
+                    currentKey = enc.GenerateKeyPair(passphrase.getBytes());
+                    // Getting user input.
+                    System.out.println("Enter in data to be encrypted: ");
+                    String str = sc.nextLine();
+                    currentData = str.getBytes();
+                    currentEncryptedData = enc.PointEncryption(currentData, currentKey);
+                    System.out.println("The data has been encrypted and saved to the program!");
+                } else if (choice == 5) { // Decryption from user input.
+                    // Making sure the user has encrypted and saved to program beforehand.
+                    if (currentKey == null || currentData == null || currentEncryptedData == null) {
+                        System.out.println("You must do encryption directly to the program first before!");
+                    } else {
+                        System.out.println("Please enter a passphrase:");
+                        passphrase = sc.next();
+                        sc.nextLine();
+                        byte[] decryptObj = enc.PointDecryption(currentEncryptedData,passphrase.getBytes());
+                        if (decryptObj != null){
+                            System.out.println("Decrypted User-Input Contents in Byte Code Format:");
+                            System.out.println(Shake.bytesToHex(decryptObj));
+                            System.out.println("Decrypted User-Input Contents in String Format:");
+                            System.out.println(new String(decryptObj, StandardCharsets.UTF_8));
+                        } else {
+                            System.out.println("You entered the wrong pass phrase.");
+                        }
+                    }
+                } else if (choice == 6) { // Signing a file.
                     System.out.println("Please choose the data file:");
                     dataFile = getFile();
                     if (dataFile == null) {
@@ -258,7 +294,7 @@ public class App {
                         System.out.println("Enter the desired name of the signature output file with .txt at the end: ");
                         saveFile(signature);
                     }
-                } else if (choice == 5) { // Verifying a file's signature.
+                } else if (choice == 7) { // Verifying a file's signature.
                     System.out.println("Please choose the data file:");
                     dataFile = getFile();
                     if (dataFile == null) {
@@ -286,7 +322,7 @@ public class App {
                         }
                     }
 
-                } else if (choice == 6) { // Exit back to main menu.
+                } else if (choice == 8) { // Exit back to main menu.
                     break;
                 } else {
                     System.out.println("Please type in a VALID number:");
@@ -309,10 +345,12 @@ public class App {
                   "================================== MENU 2 ================================\n"
                 + "1. Generate an elliptic key pair from a given passphrase\n"
                 + "2. Encrypt a data file under a given elliptic public key file\n"
-                + "3. Decrypt a given elliptic-encrypted file from a given password\n"
-                + "4. Sign a file from a given password and write the signature to the file\n"
-                + "5. Verify a given data file and its signature file under a public key file\n"
-                + "6. Go back to the main menu.\n"
+                + "3. Decrypt a given elliptic-encrypted file from a given passphrase\n"
+                + "4. Encrypt user input under a generated key pair from a given passphrase\n"
+                + "5. Decrypt previously encrypted user input from a given passphrase\n"
+                + "6. Sign a file from a given password and write the signature to the file\n"
+                + "7. Verify a given data file and its signature file under a public key file\n"
+                + "8. Go back to the main menu\n"
                 + "==========================================================================");
     }
 

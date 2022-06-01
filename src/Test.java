@@ -8,69 +8,25 @@ import java.util.Random;
  * The class used for testing of all implemented functions in this project.
  */
 public class Test {
-
     public static void main(String[] args) throws Exception {
-//        ShakeTest();
-//        ShakeTest2();
-//        KMACTest();
-//        KMACTest2();
-//        KMACTest3();
-//        EncryptionDecryptionTest();
-//        PointEncryptionDecryptionTest();
-//        SignatureTest();
-//        sumEllipticCurvePoint();
-//        GpointTest();
+        // Part 1
+        ShakeTest();
+        ShakeTest2();
+        KMACTest();
+        KMACTest2();
+        KMACTest3();
+        EncryptionDecryptionTest();
+
+        // Part 2
+        EllipticCurvePointTest();
+        PointEncryptionDecryptionTest();
+        SignatureTest();
     }
 
-    private static void EllipticCurvePointTest() {
-        EllipticCurvePoint test = new EllipticCurvePoint();
-        System.out.println(test.getY());
-    }
-
-    public static void GpointTest(){
-        ECP521 g = new ECP521(BigInteger.valueOf(4),false);
-        ECP521 o = new ECP521();
-        Random rand = new Random();
-        BigInteger k = BigInteger.valueOf(rand.nextInt(999999999));
-        BigInteger t = BigInteger.valueOf(rand.nextInt(999999999));
-//        System.out.println("X: " + g.getX() + "\n Y: " + g.getY());
-        ECP521 g1 = g.scalarMultiplication(BigInteger.valueOf(1));
-//        System.out.println("g1 ");
-//        System.out.println("X: " + g1.getX() + "\n Y: " + g1.getY());
-        ECP521 g2 = g.add(g);
-        System.out.println("G=1*G: " + g.equals(g1));
-        System.out.println("2*G = G + G: " + g.scalarMultiplication(BigInteger.TWO).equals(g2));
-        System.out.println("0*G = O: " + g.scalarMultiplication(BigInteger.ZERO).equals(o));
-        System.out.println("4*G = 2*(2*G): " + g.scalarMultiplication(BigInteger.valueOf(4))
-                .equals(g.scalarMultiplication(BigInteger.TWO).scalarMultiplication(BigInteger.TWO)));
-        System.out.println("4*G != O: " + !g.scalarMultiplication(BigInteger.valueOf(4)).equals(o));
-        System.out.println("r*G = O: " + g.scalarMultiplication(g.getR()).equals(o));
-
-        System.out.println("k*G = (k mod r)*G: " + g.scalarMultiplication(k)
-                .equals(g.scalarMultiplication(k.mod(g.getR()))));
-        System.out.println("(k + 1)*G = (k*G) + G: " + g.scalarMultiplication(k.add(BigInteger.ONE))
-                .equals(g.scalarMultiplication(k).add(g)));
-        System.out.println("(k + t)*G = (k*G) + (t*G): " + g.scalarMultiplication(k.add(t))
-                .equals(g.scalarMultiplication(k).add(g.scalarMultiplication(t))));
-        System.out.println("k*(t*G) = t*(k*G): " + g.scalarMultiplication(t).scalarMultiplication(k)
-                .equals(g.scalarMultiplication(k).scalarMultiplication(t)));
-    }
-
-    private static void sumEllipticCurvePoint() throws Exception {
-        ECP521 g = new ECP521(BigInteger.valueOf(4),false);
-        ECP521 g2 = new ECP521(BigInteger.valueOf(4),false);
-        ECP521 g3 = g.add(g2);
-        ECP521 g4 = g.scalarMultiplication(BigInteger.TWO);
-        System.out.println("X: " + g3.getX().toString() + "\nY: " + g3.getY().toString());
-        System.out.println("X: " + g4.getX().toString() + "\nY: " + g4.getY().toString());
-
-
-//        System.out.println("X: " + point3.getX().toString() + "\nY: " + point3.getY().toString());
-
-    }
-
-    // https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/cSHAKE_samples.pdf
-    // From Sample #3
+    /**
+     * https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/cSHAKE_samples.pdf
+     * From Sample #3
+     */
     public static void ShakeTest() {
         byte[] K  = {0, 1, 2, 3};
         int L = 512;
@@ -89,8 +45,10 @@ public class Test {
         System.out.println();
     }
 
-    // https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/cSHAKE_samples.pdf
-    // From Sample #4
+    /**
+     * https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/cSHAKE_samples.pdf
+     * From Sample #4
+     */
     public static void ShakeTest2() {
         byte[] K  = hexToByte("000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F202122232425262728292A2B2C2D2E2F303132333435363738393A3B3C3D3E3F404142434445464748494A4B4C4D4E4F505152535455565758595A5B5C5D5E5F606162636465666768696A6B6C6D6E6F707172737475767778797A7B7C7D7E7F808182838485868788898A8B8C8D8E8F909192939495969798999A9B9C9D9E9FA0A1A2A3A4A5A6A7A8A9AAABACADAEAFB0B1B2B3B4B5B6B7B8B9BABBBCBDBEBFC0C1C2C3C4C5C6C7");
         int L = 512;
@@ -109,8 +67,10 @@ public class Test {
         System.out.println();
     }
 
-    // https://csrc.nist.gov/csrc/media/projects/cryptographic-standards-and-guidelines/documents/examples/kmacxof_samples.pdf
-    // From Sample #4
+    /**
+     * https://csrc.nist.gov/csrc/media/projects/cryptographic-standards-and-guidelines/documents/examples/kmacxof_samples.pdf
+     * From Sample #4
+     */
     public static void KMACTest () {
         System.out.println("KMAC Test");
         String s = "404142434445464748494A4B4C4D4E4F505152535455565758595A5B5C5D5E5F";
@@ -130,8 +90,12 @@ public class Test {
         System.out.println();
     }
 
-    // https://csrc.nist.gov/csrc/media/projects/cryptographic-standards-and-guidelines/documents/examples/kmacxof_samples.pdf
-    // From Sample #5
+
+
+    /**
+     * https://csrc.nist.gov/csrc/media/projects/cryptographic-standards-and-guidelines/documents/examples/kmacxof_samples.pdf
+     * From Sample #5
+     */
     public static void KMACTest2 () {
         System.out.println("KMAC Test2");
         String s = "404142434445464748494A4B4C4D4E4F505152535455565758595A5B5C5D5E5F";
@@ -151,8 +115,11 @@ public class Test {
         System.out.println();
     }
 
-    // https://csrc.nist.gov/csrc/media/projects/cryptographic-standards-and-guidelines/documents/examples/kmacxof_samples.pdf
-    // From Sample #6
+
+    /**
+     * https://csrc.nist.gov/csrc/media/projects/cryptographic-standards-and-guidelines/documents/examples/kmacxof_samples.pdf
+     * From Sample #6
+     */
     public static void KMACTest3 () {
         System.out.println("KMAC Test3");
         String s = "404142434445464748494A4B4C4D4E4F505152535455565758595A5B5C5D5E5F";
@@ -172,6 +139,9 @@ public class Test {
         System.out.println();
     }
 
+    /**
+     * Verifying enc/dec.
+     */
     public static void EncryptionDecryptionTest() {
         System.out.println("Encryption Decryption Test ");
         String passPhrase = "secret_passphrase";
@@ -179,41 +149,55 @@ public class Test {
         byte[] M = randomString.getBytes();
         Encryption enc = new Encryption();
         byte[] decrypt_symmetric_cryptogram;
-//        Encryption and decryption test
-//        Same pass phrase
+        // Using the correct passphrase.
         SymmetricCryptogram sym = enc.Encryption(M, passPhrase);
         decrypt_symmetric_cryptogram = enc.Decryption(sym,passPhrase);
         System.out.println("Decryption Using Same Correct Pass: " + Arrays.equals(decrypt_symmetric_cryptogram, M));
-//        Different pass phrase
+        // Using the wrong passphrase.
         String wrong_passphrase = "not a passphrase";
         byte[] wrong_decrypt_symmetric_cryptogram;
         wrong_decrypt_symmetric_cryptogram = enc.Decryption(sym,wrong_passphrase);
-        //Same pass phrase
+        // Using the correct passphrase.
         System.out.println("Compare two byte arrays with same pass phrase " +
                 "and same symmetric cryptogram result: "
                 + Arrays.equals(decrypt_symmetric_cryptogram, M));
-        //Different pass phrase
+        // Using the wrong passphrase.
         System.out.println("Wrong pass phrase result: " + wrong_decrypt_symmetric_cryptogram);
     }
 
+    /**
+     * Verifying constructor of points.
+     */
+    private static void EllipticCurvePointTest() throws Exception {
+        EllipticCurvePoint g = new EllipticCurvePoint(BigInteger.valueOf(4),false);
+        EllipticCurvePoint g2 = new EllipticCurvePoint(BigInteger.valueOf(4),false);
+        EllipticCurvePoint g3 = g.addPoints(g2);
+        EllipticCurvePoint g4 = g.scalarMultiplication(g3, BigInteger.TWO);
+        System.out.println("X: " + g3.getX().toString() + "\nY: " + g3.getY().toString());
+        System.out.println("X: " + g4.getX().toString() + "\nY: " + g4.getY().toString());
+    }
+
+    /**
+     * Verifying point enc/dec.
+     */
     public static void PointEncryptionDecryptionTest() {
         System.out.println("Encryption Decryption Test ");
         String passPhrase = "secret_passphrase";
         byte[] pw = passPhrase.getBytes();
         System.out.println("The pass: " + Shake.bytesToHex(pw));
-
         Encryption enc = new Encryption();
         EllipticCurvePoint V = enc.GenerateKeyPair(pw);
-
         PointCryptogram point = enc.PointEncryption(pw, V);
-
         System.out.println("Point in test: \nX: " + point.getZ().getX().toString()+"\nY: "+point.getZ().getY().toString());
-
+        // Using the correct passphrase.
         byte[] result = enc.PointDecryption(point, pw);
-        if (result != null)
+        if (result != null) {
             System.out.println("Decryption Using SAME Correct Pass: " + Shake.bytesToHex(result));
-        else
+
+        } else {
             System.out.println("!!!!! The Decryption does not work correctly!");
+        }
+        // Using the wrong passphrase.
         String wrong_passphrase = "sf";
         byte[] wrong_pw = wrong_passphrase.getBytes();
         byte[] wrong_result = enc.PointDecryption(point,wrong_pw);
@@ -223,6 +207,9 @@ public class Test {
             System.out.println("Decryption Using WRONG Correct Pass: Failed! ");
     }
 
+    /**
+     * Verifying signatures.
+     */
     public static void SignatureTest() {
         System.out.println("Signature Test ");
         byte[] pw = "pw".getBytes();
@@ -239,8 +226,9 @@ public class Test {
         }
     }
 
-
-    // Used to convert keys to byte arrays.
+    /**
+     * Used to convert keys to byte arrays.
+     */
     public static byte[] hexToByte(String s) {
         byte[] result = new byte[s.length() / 2];
         for (int i = 0; i < result.length; i++) {
