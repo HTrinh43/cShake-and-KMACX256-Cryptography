@@ -9,10 +9,15 @@ import java.nio.file.Paths;
 import java.util.Scanner;
 
 /**
- *
+ * The main driver class behind the cryptography program.
  */
 public class App {
     private static JFileChooser chooser = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
+
+    /**
+     * Runs the entirety of the program.
+     * @param args Typical args.
+     */
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         System.out.println("------------------------------------");
@@ -49,6 +54,9 @@ public class App {
         }
     }
 
+    /**
+     * Prints the main menu.
+     */
     private static void PrintMainMenu() {
         System.out.println(
                 "=================== MAIN MENU ===================\n" +
@@ -58,7 +66,10 @@ public class App {
                 "=================================================");
     }
 
-    // Handles the entire functionality for part 1 menu.
+    /**
+     * Handles the entire functionality for part 1 menu.
+     * @param sc Used for input from user.
+     */
     private static void PartOneMenu(Scanner sc) {
         // Initialization for required variables.
         byte[] S; //diversification string
@@ -73,11 +84,11 @@ public class App {
         String str = "";
         int choice = 0;
         PrintPartOneMenu();
-        while (choice != 1 && choice != 2 && choice != 3 && choice != 4 && choice != 5) {
+        while (choice != 1 && choice != 2 && choice != 3 && choice != 4 && choice != 5 && choice != 6) {
             if (sc.hasNextInt()) {
                 choice = sc.nextInt();
                 sc.nextLine();
-                if (choice == 1) {
+                if (choice == 1) { // Computing hash from file.
                     System.out.println("Please choose the data file:");
                     dataFile = getFile();
                     if (dataFile == null) {
@@ -87,7 +98,7 @@ public class App {
                         System.out.println("Plain cryptographic hash result: \n"
                                 + Shake.bytesToHex(result));
                     }
-                } else if (choice == 2) {
+                } else if (choice == 2) { // Computing hash from string.
                     System.out.println("Your string: ");
                     str = sc.next();
                     sc.nextLine();
@@ -96,7 +107,21 @@ public class App {
                     System.out.println("Plain cryptographic hash result: \n"
                             + Shake.bytesToHex(result)
                             + "\n");
-                } else if (choice == 3) {
+                } else if (choice == 3) { // Computing MAC from file and pass.
+                    System.out.println("Please choose the data file:");
+                    dataFile = getFile();
+                    if (dataFile == null) {
+                        System.out.println("Please choose a file next time.");
+                    } else {
+                        System.out.println("Please enter a passphrase:");
+                        passphrase = sc.next();
+                        sc.nextLine();
+                        result = Shake.KMACXOF256(passphrase.getBytes(), dataFile, 512, "T".getBytes());
+                        System.out.println("The computed authentication tag (MAC): \n"
+                                + Shake.bytesToHex(result)
+                                + "\n");
+                    }
+                } else if (choice == 4) {  // Encrypting Data Symmetrically.
                     System.out.println("Please choose the data file:");
                     dataFile = getFile();
                     if (dataFile == null) {
@@ -109,7 +134,7 @@ public class App {
                         System.out.println("Enter the name of the output file with .txt at the end:");
                         saveFile(sym);
                     }
-                } else if (choice == 4) {
+                } else if (choice == 5) { // Decrypting Data Symmetrically.
                     System.out.println("Open the encrypted file:");
                     Object obj = openFile();
                     if (obj != null) {
@@ -127,7 +152,7 @@ public class App {
                     } else {
                         System.out.println("Please choose a file next time.");
                     }
-                } else if (choice == 5) {
+                } else if (choice == 6) { // Exit back to main menu.
                     break;
                 } else {
                     System.out.println("Please type in a VALID number:");
@@ -142,18 +167,25 @@ public class App {
         }
     }
 
+    /**
+     * Prints the first menu.
+     */
     private static void PrintPartOneMenu() {
         System.out.println(
-                  "=============================== MENU 1 =============================\n"
+                  "================================= MENU 1 ==================================\n"
                 + "1. Compute cryptographic hash of a given file.\n"
                 + "2. Compute cryptographic hash of a given string.\n"
-                + "3. Encrypt a given data file symmetrically under a given passphrase.\n"
-                + "4. Decrypt a given symmetric cryptogram under a given passphrase.\n"
-                + "5. Go back to the main menu.\n"
-                + "====================================================================");
+                + "3. Compute the authentication tag (MAC) from a given data file and password.\n"
+                + "4. Encrypt a given data file symmetrically under a given passphrase.\n"
+                + "5. Decrypt a given symmetric cryptogram under a given passphrase.\n"
+                + "6. Go back to the main menu.\n"
+                + "============================================================================");
     }
 
-    // Handles the entire functionality for part 2 menu.
+    /**
+     * Handles the entire functionality for part 2 menu.
+     * @param sc Used for input from user.
+     */
     private static void PartTwoMenu(Scanner sc) {
         // Initialization for required variables.
         byte[] dataFile = null; //message
@@ -166,14 +198,14 @@ public class App {
             if (sc.hasNextInt()) {
                 choice = sc.nextInt();
                 sc.nextLine();
-                if (choice == 1) {
+                if (choice == 1) { // Compute key pair from pass and output to file.
                     System.out.println("Please enter a passphrase:");
                     passphrase = sc.next();
                     sc.nextLine();
                     pointsym = enc.GenerateKeyPair(passphrase.getBytes());
                     System.out.println("Enter the name of the output file with .txt at the end: ");
                     saveFile(pointsym);
-                } else if (choice == 2) {
+                } else if (choice == 2) { // Encrypt from data file using key file.
                     System.out.println("Please choose the data file:");
                     dataFile = getFile();
                     if (dataFile == null) {
@@ -190,7 +222,7 @@ public class App {
                             System.out.println("Please choose a file next time.");
                         }
                     }
-                } else if (choice == 3) {
+                } else if (choice == 3) { // Decrypt from data file using pass.
                     System.out.println("Open the encrypted file: ");
                     Object obj = openFile();
                     if (obj != null){
@@ -207,7 +239,7 @@ public class App {
                             System.out.println("You either chose the wrong file or entered the wrong pass phrase.");
                         }
                     }
-                } else if (choice == 4) {
+                } else if (choice == 4) { // Signing a file.
                     System.out.println("Please choose the data file:");
                     dataFile = getFile();
                     if (dataFile == null) {
@@ -220,7 +252,7 @@ public class App {
                         System.out.println("Enter the desired name of the signature output file with .txt at the end: ");
                         saveFile(signature);
                     }
-                } else if (choice == 5) {
+                } else if (choice == 5) { // Verifying a file's signature.
                     System.out.println("Please choose the data file:");
                     dataFile = getFile();
                     if (dataFile == null) {
@@ -248,7 +280,7 @@ public class App {
                         }
                     }
 
-                } else if (choice == 6) {
+                } else if (choice == 6) { // Exit back to main menu.
                     break;
                 } else {
                     System.out.println("Please type in a VALID number:");
@@ -263,6 +295,9 @@ public class App {
         }
     }
 
+    /**
+     * Prints the second menu.
+     */
     private static void PrintPartTwoMenu() {
         System.out.println(
                   "================================== MENU 2 ================================\n"
